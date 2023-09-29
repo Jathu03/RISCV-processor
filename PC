@@ -1,0 +1,12 @@
+@block
+def pc_mux(reset, pc, pc_addr, jmp_addr, pc_sel):
+
+    @always_comb
+    def pmux():
+        if reset.next == INACTIVE_HIGH:
+            if pc_sel:
+                pc.next = jmp_addr
+            else:
+                pc.next = pc_addr
+
+    return pmux
