@@ -2,7 +2,7 @@
 
 `timescale 1ns/1ps
 
-module pccalc_tb();
+module pc_tb();
 
 	logic clk = 0, rstn = 0;
 	logic [31:0] pc_offset;		
@@ -14,7 +14,7 @@ module pccalc_tb();
 	
 	always #5 clk <= ~clk;
 	
-	pccalc dut (.*);
+	pc dut (.*);
 	
 	initial begin 
 		@(posedge clk) #1 rstn = 0;
