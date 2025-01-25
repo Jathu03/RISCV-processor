@@ -1,10 +1,10 @@
-module instruction_memory(
-	input [31:0] PC_out,
+module inst_memory(
+	input [31:0] pc,
 	output reg [31:0] instruction
 );
-reg [7:0] IM [63:0];   //Instruction Memory
+	logic [3:0][7:0] IM [0:NUM_INST-1];;   //Instruction Memory
 
-	assign instruction = {IM[PC_out+3],IM[PC_out+2],IM[PC_out+1],IM[PC_out]};
+	assign instruction = {IM[pc+3],IM[pc+2],IM[pc+1],IM[pc]};
 	
 	initial begin 
 			
@@ -70,4 +70,8 @@ reg [7:0] IM [63:0];   //Instruction Memory
 			
 	end
 endmodule
+	
+endmodule
+
+
 

@@ -5,7 +5,7 @@ module instruction_memory_tb;
 
     // Instantiate the instruction_memory module
     instruction_memory dut (
-        .PC_out(PC_out),
+        .pc(PC_out),
         .instruction(instruction)
     );
 
