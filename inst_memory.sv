@@ -1,4 +1,4 @@
-module instruction_memory(
+module inst_memory(
 	input [31:0] pc,
 	output reg [31:0] instruction
 );
