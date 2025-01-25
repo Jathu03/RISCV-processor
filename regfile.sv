@@ -1,35 +1,28 @@
 module regfile (
-    input logic [REG_BITS-1:0] read_reg1, read_reg2, write_reg,
-    input logic signed [WIDTH-1:0] write_data,
+    input logic [4:0] read_reg1, read_reg2, write_reg, // 5 bits for 32 registers
+    input logic signed [31:0] write_data,             // 32-bit data
     input logic write_en,
     input logic clk, rstn,
-    output logic signed [WIDTH-1:0] read_data1, read_data2,
-    output logic [WIDTH-1:0] x5, x6, x11
+    output logic signed [31:0] read_data1, read_data2,
+    output logic [31:0] x5, x6, x11
 );
-    localparameter WIDTH = 32,
-    localparameter REG_COUNT = 32,
-    localparameter REG_BITS = $clog2(REG_COUNT)
-    // Register array
-    logic [WIDTH-1:0] registers [REG_COUNT-1:0];
+    // 32 registers, each 32 bits wide
+    logic [31:0] registers [31:0];
 
-    // Read logic
+    // Read operations
     assign read_data1 = registers[read_reg1];
     assign read_data2 = registers[read_reg2];
 
-    // Write logic
+    // Write operation and reset logic
     always @(posedge clk or negedge rstn) begin
-        if (!rstn) begin
-            // Reset all registers to 0
-            for (int i = 0; i < REG_COUNT; i++) begin
-                registers[i] <= 'b0;
-            end
-        end else if (write_en && write_reg != 0) begin
-            // Write to the register only if write_reg is not 0
+        if (~rstn) begin
+            for (int i = 0; i < 32; i++) registers[i] <= 32'b0;
+        end else if (write_en && write_reg) begin
             registers[write_reg] <= write_data;
         end
     end
 
-    // Expose specific registers for observation
+    // Observation for specific registers
     assign x5 = registers[5];
     assign x6 = registers[6];
     assign x11 = registers[11];
