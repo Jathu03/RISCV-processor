@@ -1,39 +1,87 @@
 `timescale 1ns/1ps
+`include "controls.sv"  // Include control definitions
 
 module alu_tb;
-    reg [31:0] in1, in2;
-    reg [3:0] alu_control;
-    wire [31:0] alu_result;
-    wire zero_flag;
+
+    // Parameters
+    parameter WIDTH = 32;
+    parameter ALU_SEL = 4;
+
+    // Testbench signals
+    reg signed [WIDTH-1:0] input_a, input_b; // ALU inputs
+    reg [ALU_SEL-1:0] alu_sel;              // ALU operation selector
+    wire signed [WIDTH-1:0] alu_out;        // ALU result
+    wire alu_zero;                          // Zero flag
+    wire alu_neg;                           // Negative flag
 
     // Instantiate the ALU module
-    alu uut (
-        .input1(input1),
-        .input2(input2),
-        .alu_control(alu_control),
-        .alu_result(alu_result),
-        .zero_flag(zero_flag)
+    alu #(
+        .WIDTH(WIDTH),
+        .ALU_SEL(ALU_SEL)
+    ) dut (
+        .input_a(input_a),
+        .input_b(input_b),
+        .alu_sel(alu_sel),
+        .alu_out(alu_out),
+        .alu_zero(alu_zero),
+        .alu_neg(alu_neg)
     );
 
-    // Initialize inputs
+    // Testbench procedure
     initial begin
-        input1 = 32'h0000_1234;
-        input2 = 32'h0000_5678;
-        alu_control = 4'b0011; // Perform addition
+        // Test 1: Addition
+        input_a = 32'd10;
+        input_b = 32'd5;
+        alu_sel = `ALU_ADD;
+        #10;
+        $display("Test 1: ADD | input_a: %d, input_b: %d, alu_out: %d, alu_zero: %b, alu_neg: %b", 
+                 input_a, input_b, alu_out, alu_zero, alu_neg);
 
-        // Perform other operations by changing alu_control
-        #10 alu_control = 4'b0001; // Perform AND
-        #10 alu_control = 4'b0010; // Perform OR
-        #10 alu_control = 4'b0100; // Perform subtraction
+        // Test 2: Subtraction
+        input_a = 32'd10;
+        input_b = 32'd15;
+        alu_sel = `ALU_SUB;
+        #10;
+        $display("Test 2: SUB | input_a: %d, input_b: %d, alu_out: %d, alu_zero: %b, alu_neg: %b", 
+                 input_a, input_b, alu_out, alu_zero, alu_neg);
 
-        // Add more test cases as needed
+        // Test 3: AND
+        input_a = 32'b1100;
+        input_b = 32'b1010;
+        alu_sel = `ALU_AND;
+        #10;
+        $display("Test 3: AND | input_a: %b, input_b: %b, alu_out: %b", input_a, input_b, alu_out);
 
-        // Stop the simulation
-        $finish;
+        // Test 4: OR
+        input_a = 32'b1100;
+        input_b = 32'b1010;
+        alu_sel = `ALU_OR;
+        #10;
+        $display("Test 4: OR | input_a: %b, input_b: %b, alu_out: %b", input_a, input_b, alu_out);
+
+        // Test 5: SLT (Signed Less Than)
+        input_a = -32'd10;
+        input_b = 32'd5;
+        alu_sel = `ALU_SLT;
+        #10;
+        $display("Test 5: SLT | input_a: %d, input_b: %d, alu_out: %d", input_a, input_b, alu_out);
+
+        // Test 6: Multiplication
+        input_a = 32'd7;
+        input_b = 32'd6;
+        alu_sel = `ALU_MUL;
+        #10;
+        $display("Test 6: MUL | input_a: %d, input_b: %d, alu_out: %d", input_a, input_b, alu_out);
+
+        // Test 7: Zero result
+        input_a = 32'd0;
+        input_b = 32'd0;
+        alu_sel = `ALU_ADD;
+        #10;
+        $display("Test 7: Zero Result | input_a: %d, input_b: %d, alu_out: %d, alu_zero: %b", 
+                 input_a, input_b, alu_out, alu_zero);
+
+        $stop; // Stop simulation
     end
 
-    // Display results
-    always @(alu_result, zero_flag) begin
-        $display("ALU Result: %h, Zero Flag: %b", alu_result, zero_flag);
-    end
 endmodule
