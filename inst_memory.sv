@@ -4,7 +4,7 @@ module instruction_memory(
 );
 	logic [3:0][7:0] IM [0:NUM_INST-1];;   //Instruction Memory
 
-	assign instruction = {IM[PC_out+3],IM[PC_out+2],IM[PC_out+1],IM[PC_out]};
+	assign instruction = {IM[pc+3],IM[pc+2],IM[pc+1],IM[pc]};
 	
 	initial begin 
 			
