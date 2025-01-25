@@ -2,7 +2,7 @@
 
 `timescale 1ns/1ps
 
-module pc_tb();
+module pcc_tb();
 
 	logic clk = 0, rstn = 0;
 	logic [31:0] pc_offset;		
