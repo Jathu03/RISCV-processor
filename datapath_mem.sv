@@ -108,7 +108,7 @@ module datapath_mem (
         .mem_read_data(mem_read_data)
     );
 
-    pccalc pclogic_obj (
+    pcc pclogic_obj (
         .pc(pc),
         .target_pc(target_pc)
     );
