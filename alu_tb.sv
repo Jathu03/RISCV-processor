@@ -1,78 +1,71 @@
 `timescale 1ns/1ps
 
-module regfile_tb;
+module alu_tb;
 
     // Testbench signals
-    reg [4:0] read_reg1, read_reg2, write_reg;
-    reg signed [31:0] write_data;
-    reg write_en, clk, rstn;
-    wire signed [31:0] read_data1, read_data2;
-    wire [31:0] x5, x6, x11;
+    reg signed [31:0] bus_a, bus_b;
+    reg [3:0] alu_sel;
+    wire signed [31:0] alu_out;
+    wire alu_zero, alu_neg;
 
-    // Instantiate the module
-    regfile dut (
-        .read_reg1(read_reg1),
-        .read_reg2(read_reg2),
-        .write_reg(write_reg),
-        .write_data(write_data),
-        .write_en(write_en),
-        .clk(clk),
-        .rstn(rstn),
-        .read_data1(read_data1),
-        .read_data2(read_data2),
-        .x5(x5),
-        .x6(x6),
-        .x11(x11)
+    // Instantiate the ALU module
+    alu dut (
+        .bus_a(bus_a),
+        .bus_b(bus_b),
+        .alu_sel(alu_sel),
+        .alu_out(alu_out),
+        .alu_zero(alu_zero),
+        .alu_neg(alu_neg)
     );
-
-    // Clock generation
-    initial begin
-        clk = 0;
-        forever #5 clk = ~clk; // 10ns clock period
-    end
 
     // Test sequence
     initial begin
-        // Initialize signals
-        rstn = 0;
-        write_en = 0;
-        read_reg1 = 0;
-        read_reg2 = 0;
-        write_reg = 0;
-        write_data = 0;
+        // Test 1: Addition
+        bus_a = 32'h00000005;
+        bus_b = 32'h00000003;
+        alu_sel = `ALU_ADD;
+        #10 $display("Test 1 - Addition: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        // Reset registers
-        #10 rstn = 1;
+        // Test 2: Subtraction
+        bus_a = 32'h00000005;
+        bus_b = 32'h00000008;
+        alu_sel = `ALU_SUB;
+        #10 $display("Test 2 - Subtraction: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        // Test 1: Write data to register 5
-        #10 write_en = 1;
-        write_reg = 5;
-        write_data = 32'hA5A5A5A5;
-        #10 write_en = 0;
+        // Test 3: Logical AND
+        bus_a = 32'hFFFFFFFF;
+        bus_b = 32'h0000FFFF;
+        alu_sel = `ALU_AND;
+        #10 $display("Test 3 - AND: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        // Test 2: Write data to register 6
-        #10 write_en = 1;
-        write_reg = 6;
-        write_data = 32'h5A5A5A5A;
-        #10 write_en = 0;
+        // Test 4: Logical OR
+        alu_sel = `ALU_OR;
+        #10 $display("Test 4 - OR: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        // Test 3: Read data from registers 5 and 6
-        #10 read_reg1 = 5;
-        read_reg2 = 6;
+        // Test 5: Logical XOR
+        alu_sel = `ALU_XOR;
+        #10 $display("Test 5 - XOR: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        #10 $display("Test 3: Read data1 = %h, Read data2 = %h", read_data1, read_data2);
+        // Test 6: Shift Left Logical
+        bus_a = 32'h00000001;
+        bus_b = 32'h00000002;
+        alu_sel = `ALU_SLL;
+        #10 $display("Test 6 - SLL: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        // Test 4: Write data to register 11
-        #10 write_en = 1;
-        write_reg = 11;
-        write_data = 32'h12345678;
-        #10 write_en = 0;
+        // Test 7: Multiply
+        bus_a = 32'h00000002;
+        bus_b = 32'h00000003;
+        alu_sel = `ALU_MUL;
+        #10 $display("Test 7 - Multiply: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
-        // Test 5: Observe specific registers
-        #10 $display("Test 5: x5 = %h, x6 = %h, x11 = %h", x5, x6, x11);
+        // Test 8: Set Less Than (Signed)
+        bus_a = -32'd5;
+        bus_b = 32'd3;
+        alu_sel = `ALU_SLT;
+        #10 $display("Test 8 - SLT: alu_out = %h, alu_zero = %b, alu_neg = %b", alu_out, alu_zero, alu_neg);
 
         // End simulation
-        #20;
+        #10;
         $stop;
     end
 
