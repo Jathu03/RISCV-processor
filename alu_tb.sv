@@ -1,87 +1,79 @@
 `timescale 1ns/1ps
-`include "controls.sv"  // Include control definitions
 
-module alu_tb;
-
-    // Parameters
-    parameter WIDTH = 32;
-    parameter ALU_SEL = 4;
+module regfile_tb;
 
     // Testbench signals
-    reg signed [WIDTH-1:0] input_a, input_b; // ALU inputs
-    reg [ALU_SEL-1:0] alu_sel;              // ALU operation selector
-    wire signed [WIDTH-1:0] alu_out;        // ALU result
-    wire alu_zero;                          // Zero flag
-    wire alu_neg;                           // Negative flag
+    reg [4:0] read_reg1, read_reg2, write_reg;
+    reg signed [31:0] write_data;
+    reg write_en, clk, rstn;
+    wire signed [31:0] read_data1, read_data2;
+    wire [31:0] x5, x6, x11;
 
-    // Instantiate the ALU module
-    alu #(
-        .WIDTH(WIDTH),
-        .ALU_SEL(ALU_SEL)
-    ) dut (
-        .input_a(input_a),
-        .input_b(input_b),
-        .alu_sel(alu_sel),
-        .alu_out(alu_out),
-        .alu_zero(alu_zero),
-        .alu_neg(alu_neg)
+    // Instantiate the module
+    regfile dut (
+        .read_reg1(read_reg1),
+        .read_reg2(read_reg2),
+        .write_reg(write_reg),
+        .write_data(write_data),
+        .write_en(write_en),
+        .clk(clk),
+        .rstn(rstn),
+        .read_data1(read_data1),
+        .read_data2(read_data2),
+        .x5(x5),
+        .x6(x6),
+        .x11(x11)
     );
 
-    // Testbench procedure
+    // Clock generation
     initial begin
-        // Test 1: Addition
-        input_a = 32'd10;
-        input_b = 32'd5;
-        alu_sel = `ALU_ADD;
-        #10;
-        $display("Test 1: ADD | input_a: %d, input_b: %d, alu_out: %d, alu_zero: %b, alu_neg: %b", 
-                 input_a, input_b, alu_out, alu_zero, alu_neg);
+        clk = 0;
+        forever #5 clk = ~clk; // 10ns clock period
+    end
 
-        // Test 2: Subtraction
-        input_a = 32'd10;
-        input_b = 32'd15;
-        alu_sel = `ALU_SUB;
-        #10;
-        $display("Test 2: SUB | input_a: %d, input_b: %d, alu_out: %d, alu_zero: %b, alu_neg: %b", 
-                 input_a, input_b, alu_out, alu_zero, alu_neg);
+    // Test sequence
+    initial begin
+        // Initialize signals
+        rstn = 0;
+        write_en = 0;
+        read_reg1 = 0;
+        read_reg2 = 0;
+        write_reg = 0;
+        write_data = 0;
 
-        // Test 3: AND
-        input_a = 32'b1100;
-        input_b = 32'b1010;
-        alu_sel = `ALU_AND;
-        #10;
-        $display("Test 3: AND | input_a: %b, input_b: %b, alu_out: %b", input_a, input_b, alu_out);
+        // Reset registers
+        #10 rstn = 1;
 
-        // Test 4: OR
-        input_a = 32'b1100;
-        input_b = 32'b1010;
-        alu_sel = `ALU_OR;
-        #10;
-        $display("Test 4: OR | input_a: %b, input_b: %b, alu_out: %b", input_a, input_b, alu_out);
+        // Test 1: Write data to register 5
+        #10 write_en = 1;
+        write_reg = 5;
+        write_data = 32'hA5A5A5A5;
+        #10 write_en = 0;
 
-        // Test 5: SLT (Signed Less Than)
-        input_a = -32'd10;
-        input_b = 32'd5;
-        alu_sel = `ALU_SLT;
-        #10;
-        $display("Test 5: SLT | input_a: %d, input_b: %d, alu_out: %d", input_a, input_b, alu_out);
+        // Test 2: Write data to register 6
+        #10 write_en = 1;
+        write_reg = 6;
+        write_data = 32'h5A5A5A5A;
+        #10 write_en = 0;
 
-        // Test 6: Multiplication
-        input_a = 32'd7;
-        input_b = 32'd6;
-        alu_sel = `ALU_MUL;
-        #10;
-        $display("Test 6: MUL | input_a: %d, input_b: %d, alu_out: %d", input_a, input_b, alu_out);
+        // Test 3: Read data from registers 5 and 6
+        #10 read_reg1 = 5;
+        read_reg2 = 6;
 
-        // Test 7: Zero result
-        input_a = 32'd0;
-        input_b = 32'd0;
-        alu_sel = `ALU_ADD;
-        #10;
-        $display("Test 7: Zero Result | input_a: %d, input_b: %d, alu_out: %d, alu_zero: %b", 
-                 input_a, input_b, alu_out, alu_zero);
+        #10 $display("Test 3: Read data1 = %h, Read data2 = %h", read_data1, read_data2);
 
-        $stop; // Stop simulation
+        // Test 4: Write data to register 11
+        #10 write_en = 1;
+        write_reg = 11;
+        write_data = 32'h12345678;
+        #10 write_en = 0;
+
+        // Test 5: Observe specific registers
+        #10 $display("Test 5: x5 = %h, x6 = %h, x11 = %h", x5, x6, x11);
+
+        // End simulation
+        #20;
+        $stop;
     end
 
 endmodule
