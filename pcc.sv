@@ -1,6 +1,6 @@
 `include "controls.sv"
 
-module pc (
+module pcc (
 	input logic clk, rstn,
 	input logic [31:0] pc_offset,		// For branch and JAL
 	input logic [31:0] target_pc,	// For JALR, already calculated PC
